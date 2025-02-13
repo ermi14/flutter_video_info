@@ -12,34 +12,27 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.io.*;
+import java.io.File;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * FlutterVideoInfoPlugin
  */
 public class FlutterVideoInfoPlugin implements FlutterPlugin, MethodCallHandler {
 
-    private String chName = "flutter_video_info";
-    public static Context context;
+    private MethodChannel channel;
+    private Context context;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-        final MethodChannel channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(),
-                "flutter_video_info");
-        channel.setMethodCallHandler(new FlutterVideoInfoPlugin());
         context = flutterPluginBinding.getApplicationContext();
-    }
-
-    public static void registerWith(Registrar registrar_) {
-        final MethodChannel channel = new MethodChannel(registrar_.messenger(), "flutter_video_info");
-        channel.setMethodCallHandler(new FlutterVideoInfoPlugin());
+        channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "flutter_video_info");
+        channel.setMethodCallHandler(this);
     }
 
     @Override
@@ -54,21 +47,22 @@ public class FlutterVideoInfoPlugin implements FlutterPlugin, MethodCallHandler 
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        channel.setMethodCallHandler(null);
     }
 
     String getVidInfo(String path) {
         File file = new File(path);
-        boolean isFileExists=file.exists();
-        String author,dateString,mimeType,location,frameRateStr,widthStr,heightStr,durationStr,orientation;
+        boolean isFileExists = file.exists();
+        String author, dateString, mimeType, location, frameRateStr, widthStr, heightStr, durationStr, orientation;
         double filesize;
-        if(isFileExists){
+
+        if (isFileExists) {
             MediaMetadataRetriever mediaRetriever = new MediaMetadataRetriever();
             try {
                 mediaRetriever.setDataSource(context, Uri.fromFile(file));
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
 
             author = getData(MediaMetadataRetriever.METADATA_KEY_AUTHOR, mediaRetriever);
             dateString = getData(MediaMetadataRetriever.METADATA_KEY_DATE, mediaRetriever);
@@ -93,24 +87,23 @@ public class FlutterVideoInfoPlugin implements FlutterPlugin, MethodCallHandler 
             } else {
                 orientation = null;
             }
-            
+
             try {
-                 mediaRetriever.release();
+                mediaRetriever.release();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
-        }else{
-            author="";
-            dateString="";
-            mimeType="";
-            location="";
-            frameRateStr="";
-            widthStr="";
-            heightStr="";
-            durationStr="";
-            orientation="";
-            filesize=0;
+        } else {
+            author = "";
+            dateString = "";
+            mimeType = "";
+            location = "";
+            frameRateStr = "";
+            widthStr = "";
+            heightStr = "";
+            durationStr = "";
+            orientation = "";
+            filesize = 0;
         }
 
         JSONObject json = new JSONObject();
@@ -126,7 +119,7 @@ public class FlutterVideoInfoPlugin implements FlutterPlugin, MethodCallHandler 
             json.put("duration", durationStr);
             json.put("filesize", filesize);
             json.put("orientation", orientation);
-            json.put("isfileexist",isFileExists);
+            json.put("isfileexist", isFileExists);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -141,5 +134,4 @@ public class FlutterVideoInfoPlugin implements FlutterPlugin, MethodCallHandler 
             return null;
         }
     }
-
 }

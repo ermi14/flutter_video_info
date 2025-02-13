@@ -1,0 +1,2 @@
+/Users/ermi/StudioProjects/flutter_video_info/example/android/app/.cxx/Debug/2g4i4e40/x86_64/CMakeFiles/edit_cache.dir
+/Users/ermi/StudioProjects/flutter_video_info/example/android/app/.cxx/Debug/2g4i4e40/x86_64/CMakeFiles/rebuild_cache.dir
